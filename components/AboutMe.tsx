@@ -10,22 +10,30 @@ gsap.registerPlugin(ScrollTrigger);
 
 const stats = [
   {
-    value: "8+",
+    value: 8,
+    prefix: "",
+    suffix: "+",
     label: "Years Experience",
     icon: <Briefcase className="w-5 h-5" />,
   },
   {
-    value: "50+",
+    value: 50,
+    prefix: "",
+    suffix: "+",
     label: "Projects Delivered",
     icon: <Award className="w-5 h-5" />,
   },
   {
-    value: "$10M+",
+    value: 10,
+    prefix: "$",
+    suffix: "M+",
     label: "Revenue Impact",
     icon: <TrendingUp className="w-5 h-5" />,
   },
   {
-    value: "99.9%",
+    value: 99.9,
+    prefix: "",
+    suffix: "%",
     label: "Client Satisfaction",
     icon: <Zap className="w-5 h-5" />,
   },
@@ -134,6 +142,29 @@ export default function AboutMe() {
             },
           },
         );
+
+        // Count-up values (SSR renders final text; JS animates from 0)
+        const values =
+          statsRef.current.querySelectorAll<HTMLElement>("[data-stat-value]");
+        values.forEach((el) => {
+          const target = parseFloat(el.dataset.value ?? "0");
+          const decimals = (el.dataset.value ?? "").includes(".") ? 1 : 0;
+          const prefix = el.dataset.prefix ?? "";
+          const suffix = el.dataset.suffix ?? "";
+          const counter = { n: 0 };
+          gsap.to(counter, {
+            n: target,
+            duration: 1.6,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: statsRef.current,
+              start: "top 85%",
+            },
+            onUpdate: () => {
+              el.textContent = `${prefix}${counter.n.toFixed(decimals)}${suffix}`;
+            },
+          });
+        });
       }
 
       // Principles animation
@@ -222,8 +253,16 @@ export default function AboutMe() {
               <div className="w-12 h-12 mx-auto mb-4 bg-orange/10 rounded-xl flex items-center justify-center text-orange group-hover:bg-orange/20 transition-colors">
                 {stat.icon}
               </div>
-              <div className="font-serif text-3xl md:text-4xl text-primary-dark mb-2 group-hover:text-orange transition-colors">
+              <div
+                data-stat-value
+                data-value={stat.value}
+                data-prefix={stat.prefix}
+                data-suffix={stat.suffix}
+                className="font-serif text-3xl md:text-4xl text-primary-dark mb-2 group-hover:text-orange transition-colors"
+              >
+                {stat.prefix}
                 {stat.value}
+                {stat.suffix}
               </div>
               <div className="text-primary-dark/60 text-sm md:text-base font-medium">
                 {stat.label}

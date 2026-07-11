@@ -84,7 +84,7 @@ const projects: Project[] = [
       "MLflow",
     ],
     image:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80",
+      "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&q=80",
     link: "/case-studies/datasync",
   },
 ];
@@ -116,12 +116,16 @@ export default function ProjectsSection() {
 
       const cards = gsap.utils.toArray<HTMLElement>(".project-card");
 
+      // Each pinned card recedes under the next one — sole tween on the card,
+      // so nothing fights the sticky positioning or overwrites opacity.
       cards.forEach((card, index) => {
         if (index === cards.length - 1) return;
 
         gsap.to(card, {
           scale: 0.92,
           opacity: 0.5,
+          filter: "blur(2px)",
+          transformOrigin: "center top",
           ease: "none",
           scrollTrigger: {
             trigger: cards[index + 1],
@@ -131,29 +135,6 @@ export default function ProjectsSection() {
           },
         });
       });
-
-      cards.forEach((card) => {
-  gsap.fromTo(
-    card,
-    {
-      y: 80,
-      opacity: 0,
-    },
-    {
-      y: 0,
-      opacity: 1,
-      duration: 1,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: card,
-        start: "top 85%",
-      },
-    }
-  );
-});
-
-
-
     },
     { scope: sectionRef },
   );
@@ -193,11 +174,9 @@ export default function ProjectsSection() {
                 }}
                 data-project-card
                 className="project-card sticky top-24 mb-24"
-                // className="relative bg-white rounded-3xl shadow-xl shadow-primary-dark/10 p-6 md:p-10 border border-primary-dark/5 transition-all duration-300"
               >
                 <div
-                  className="relative bg-white rounded-3xl shadow-xl shadow-primary-dark/10 p-6 md:p-10 border border-primary-dark/5 transition-all duration-300"
-                  // className={`flex flex-col md:flex-row gap-6 md:gap-10 ${index % 2 === 1 ? "md:flex-row-reverse" : ""}`}
+                  className={`relative bg-white rounded-3xl shadow-xl shadow-primary-dark/10 p-6 md:p-10 border border-primary-dark/5 flex flex-col md:flex-row items-center gap-6 md:gap-10 ${index % 2 === 1 ? "md:flex-row-reverse" : ""}`}
                 >
                   {/* Project Image */}
                   <div className="w-full md:w-2/5 relative" data-project-image>

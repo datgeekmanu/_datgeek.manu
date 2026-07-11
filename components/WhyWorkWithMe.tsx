@@ -135,13 +135,30 @@ export default function WhyWorkWithMe() {
             <div
               key={index}
               data-feature-card
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty(
+                  "--x",
+                  `${e.clientX - rect.left}px`,
+                );
+                e.currentTarget.style.setProperty(
+                  "--y",
+                  `${e.clientY - rect.top}px`,
+                );
+              }}
               className="group relative bg-white rounded-2xl md:rounded-3xl p-7 md:p-10 shadow-lg shadow-primary-dark/5 hover:shadow-xl hover:shadow-primary-dark/10 transition-all duration-500 hover:-translate-y-1 overflow-hidden"
             >
-              {/* Subtle glow on hover */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-orange/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              {/* Mouse-follow spotlight glow */}
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(420px circle at var(--x, 50%) var(--y, 50%), rgba(232, 100, 26, 0.1), transparent 65%)",
+                }}
+              />
 
               <div className="relative z-10">
-                <div className="w-12 h-12 md:w-14 md:h-14 bg-orange/10 rounded-xl flex items-center justify-center text-orange mb-5 group-hover:bg-orange/20 transition-colors duration-300">
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-orange/10 rounded-xl flex items-center justify-center text-orange mb-5 group-hover:bg-orange/20 group-hover:scale-110 transition-all duration-300">
                   {feature.icon}
                 </div>
                 <h3 className="font-serif text-xl md:text-2xl text-primary-dark mb-3 group-hover:text-orange transition-colors duration-300">

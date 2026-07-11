@@ -34,10 +34,24 @@ const facultyGlyphic = Faculty_Glyphic({
   style: ["normal"],
 });
 
+const siteTitle = "Emmanuel Holonou – Full-Stack Software Engineer";
+const siteDescription =
+  "Building scalable web applications and APIs. Full-stack development, backend systems, and data engineering. Available for consulting and freelance projects.";
+
 export const metadata: Metadata = {
-  title: "datgeek.manu – Full-Stack Software Engineer",
-  description:
-    "Building scalable web applications and APIs. Full-stack development, backend systems, and data engineering. Available for consulting and freelance projects.",
+  title: siteTitle,
+  description: siteDescription,
+  openGraph: {
+    title: siteTitle,
+    description: siteDescription,
+    type: "website",
+    siteName: "datgeek.manu",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDescription,
+  },
 };
 
 export default function RootLayout({

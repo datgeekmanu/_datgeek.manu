@@ -23,7 +23,7 @@ const particlesConfig: ISourceOptions = {
         enable: true,
         mode: "repulse",
       },
-      resize: true,
+      resize: { enable: true },
     },
     modes: {
       push: {
@@ -59,7 +59,6 @@ const particlesConfig: ISourceOptions = {
     number: {
       density: {
         enable: true,
-        area: 800,
       },
       value: 80,
     },

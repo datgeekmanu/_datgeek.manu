@@ -21,7 +21,7 @@ export default function CTA() {
           </p>
           <Link
             className="inline-flex items-center px-8 py-4 bg-orange text-white font-bold rounded-xl shadow-[0_10px_25px_rgba(232,100,26,0.3)] hover:bg-brand-accent/90 transition-all duration-300 transform hover:-translate-y-1 group"
-            href="#"
+            href="mailto:holonouemmanuel0@gmail.com?subject=Free%20consultation"
           >
             <CalendarDays className="mr-2" />
             Book a Free Consultation

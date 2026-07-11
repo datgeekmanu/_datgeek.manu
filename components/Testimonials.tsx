@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -40,16 +40,28 @@ const testimonials: Testimonial[] = [
   },
 ];
 
+const ROTATION_MS = 6000;
+
 export default function Testimonials() {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<HTMLDivElement>(null);
+  const quoteRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(
+      () => setActive((i) => (i + 1) % testimonials.length),
+      ROTATION_MS,
+    );
+    return () => clearInterval(id);
+  }, [paused]);
 
   useGSAP(
     () => {
-      if (!sectionRef.current || !titleRef.current) return;
+      if (!titleRef.current) return;
 
-      // Title animation
       gsap.fromTo(
         titleRef.current,
         { y: 50, opacity: 0 },
@@ -62,34 +74,32 @@ export default function Testimonials() {
             trigger: titleRef.current,
             start: "top 85%",
           },
-        }
+        },
       );
-
-      // Card stagger animation
-      if (cardsRef.current) {
-        const cards = cardsRef.current.querySelectorAll("[data-testimonial-card]");
-        gsap.fromTo(
-          cards,
-          { y: 80, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            stagger: 0.15,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: cardsRef.current,
-              start: "top 80%",
-            },
-          }
-        );
-      }
     },
-    { scope: sectionRef }
+    { scope: sectionRef },
   );
 
+  // Crossfade the featured quote whenever the active testimonial changes
+  useGSAP(
+    () => {
+      if (!quoteRef.current) return;
+      gsap.fromTo(
+        quoteRef.current,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
+      );
+    },
+    { scope: sectionRef, dependencies: [active] },
+  );
+
+  const current = testimonials[active];
+
   return (
-    <section ref={sectionRef} className="bg-cream py-20 md:py-28 relative overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="bg-cream py-20 md:py-28 relative overflow-hidden"
+    >
       {/* Subtle background gradients */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-teal/5 rounded-full blur-[100px] pointer-events-none" />
@@ -101,65 +111,60 @@ export default function Testimonials() {
             What People Say
           </span>
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-primary-dark leading-tight">
-            Trusted by{" "}
-            <span className="text-orange">Founders & Teams</span>
+            Trusted by <span className="text-orange">Founders & Teams</span>
           </h2>
         </div>
 
-        {/* Testimonial Cards */}
-        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {testimonials.map((testimonial, index) => (
-            <div
-              key={index}
-              data-testimonial-card
-              className="group relative bg-white rounded-2xl md:rounded-3xl p-8 md:p-10 shadow-lg shadow-primary-dark/5 hover:shadow-xl hover:shadow-primary-dark/10 transition-all duration-500 hover:-translate-y-2 overflow-hidden"
-            >
-              {/* Quote icon */}
-              <div className="absolute top-6 right-6 text-orange/10 group-hover:text-orange/20 transition-colors duration-300">
-                <Quote className="w-12 h-12 md:w-16 md:h-16" />
-              </div>
-
-              {/* Subtle glow on hover */}
-              <div className="absolute top-0 right-0 w-40 h-40 bg-orange/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-              <div className="relative z-10">
-                {/* Avatar */}
-                <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white font-serif text-lg md:text-xl font-semibold mb-6 shadow-lg shadow-orange/20">
-                  {testimonial.avatar}
-                </div>
-
-                {/* Testimonial Text */}
-                <p className="text-primary-dark/80 text-base md:text-lg leading-relaxed mb-8 min-h-[140px] md:min-h-[160px]">
-                  {testimonial.text}
-                </p>
-
-                {/* Author Info */}
-                <div>
-                  <p className="text-primary-dark font-semibold text-lg mb-1 group-hover:text-orange transition-colors duration-300">
-                    {testimonial.name}
-                  </p>
-                  <p className="text-primary-dark/60 text-sm">
-                    {testimonial.role}, {testimonial.company}
-                  </p>
-                </div>
-              </div>
-
-              {/* Decorative accent line */}
-              <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-orange to-transparent group-hover:w-full transition-all duration-700" />
+        {/* Featured Quote Spotlight */}
+        <div
+          className="max-w-4xl mx-auto text-center"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+          <div ref={quoteRef} key={active}>
+            <Quote className="w-10 h-10 md:w-14 md:h-14 text-orange/30 mx-auto mb-8" />
+            <blockquote className="font-serif text-xl md:text-2xl lg:text-3xl text-primary-dark leading-relaxed md:leading-relaxed min-h-[220px] md:min-h-[200px]">
+              &ldquo;{current.text}&rdquo;
+            </blockquote>
+            <div className="mt-8">
+              <p className="text-primary-dark font-semibold text-lg">
+                {current.name}
+              </p>
+              <p className="text-primary-dark/60 text-sm">
+                {current.role}, {current.company}
+              </p>
             </div>
-          ))}
+          </div>
+
+          {/* Avatar Navigation */}
+          <div className="mt-10 flex items-center justify-center gap-4">
+            {testimonials.map((t, i) => (
+              <button
+                key={t.name}
+                onClick={() => setActive(i)}
+                aria-label={`Show testimonial from ${t.name}`}
+                className={`w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white font-serif text-base md:text-lg font-semibold shadow-lg shadow-orange/20 transition-all duration-300 cursor-pointer ${
+                  i === active
+                    ? "scale-110 ring-2 ring-orange ring-offset-4 ring-offset-cream"
+                    : "opacity-40 hover:opacity-80 scale-90"
+                }`}
+              >
+                {t.avatar}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Trust Badge */}
         <div className="mt-16 text-center">
           <div className="inline-flex items-center gap-3 bg-white/50 backdrop-blur-sm rounded-full px-6 py-3 border border-primary-dark/10">
             <div className="flex -space-x-2">
-              {[...Array(3)].map((_, i) => (
+              {testimonials.map((t) => (
                 <div
-                  key={i}
+                  key={t.avatar}
                   className="w-8 h-8 rounded-full border-2 border-cream bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white text-xs font-semibold"
                 >
-                  {["SC", "MR", "JO"][i]}
+                  {t.avatar}
                 </div>
               ))}
             </div>
