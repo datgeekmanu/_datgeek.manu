@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -89,15 +89,28 @@ const projects: Project[] = [
   },
 ];
 
+// Longer than testimonials' 6s — project cards carry more text to read
+const ROTATION_MS = 8000;
+
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
-  const projectsRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(
+      () => setActive((i) => (i + 1) % projects.length),
+      ROTATION_MS,
+    );
+    return () => clearInterval(id);
+  }, [paused]);
 
   useGSAP(
     () => {
-      if (!sectionRef.current || !projectsRef.current || !titleRef.current)
-        return;
+      if (!titleRef.current) return;
 
       gsap.fromTo(
         titleRef.current,
@@ -113,31 +126,24 @@ export default function ProjectsSection() {
           },
         },
       );
-
-      const cards = gsap.utils.toArray<HTMLElement>(".project-card");
-
-      // Each pinned card recedes under the next one — sole tween on the card,
-      // so nothing fights the sticky positioning or overwrites opacity.
-      cards.forEach((card, index) => {
-        if (index === cards.length - 1) return;
-
-        gsap.to(card, {
-          scale: 0.92,
-          opacity: 0.5,
-          filter: "blur(2px)",
-          transformOrigin: "center top",
-          ease: "none",
-          scrollTrigger: {
-            trigger: cards[index + 1],
-            start: "top 80%",
-            end: "top 30%",
-            scrub: true,
-          },
-        });
-      });
     },
     { scope: sectionRef },
   );
+
+  // Crossfade the featured project whenever the active index changes
+  useGSAP(
+    () => {
+      if (!cardRef.current) return;
+      gsap.fromTo(
+        cardRef.current,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
+      );
+    },
+    { scope: sectionRef, dependencies: [active] },
+  );
+
+  const project = projects[active];
 
   return (
     <section
@@ -163,96 +169,107 @@ export default function ProjectsSection() {
           </p>
         </div>
 
-        {/* Projects Stack */}
-        <div ref={projectsRef} className="relative py-20 md:py-32">
-          <div className="max-w-5xl mx-auto relative">
-            {projects.map((project, index) => (
-              <div
-                key={project.title}
-                style={{
-                  zIndex: projects.length - index,
-                }}
-                data-project-card
-                className="project-card sticky top-24 mb-24"
-              >
-                <div
-                  className={`relative bg-white rounded-3xl shadow-xl shadow-primary-dark/10 p-6 md:p-10 border border-primary-dark/5 flex flex-col md:flex-row items-center gap-6 md:gap-10 ${index % 2 === 1 ? "md:flex-row-reverse" : ""}`}
-                >
-                  {/* Project Image */}
-                  <div className="w-full md:w-2/5 relative" data-project-image>
-                    <div className="relative rounded-2xl overflow-hidden shadow-lg">
-                      <div className="aspect-[16/10] overflow-hidden">
-                        <img
-                          src={project.image}
-                          alt={project.title}
-                          className="w-full h-full object-cover transform transition-transform duration-700 ease-out"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Project Content */}
-                  <div className="w-full md:w-3/5 space-y-4">
-                    <div>
-                      <span className="text-orange font-medium text-xs uppercase tracking-wider">
-                        {project.positioning}
-                      </span>
-                      <h3 className="font-serif text-xl md:text-2xl lg:text-3xl text-primary-dark mt-2 mb-3 transition-colors duration-300">
-                        {project.title}
-                      </h3>
-                      <p className="text-primary-dark/70 text-sm md:text-base leading-relaxed line-clamp-2">
-                        {project.description}
-                      </p>
-                    </div>
-
-                    {/* Problem & Solution */}
-                    <div className="space-y-3 pt-3 border-t border-primary-dark/10">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-primary-dark/60 text-xs font-medium uppercase tracking-wider">
-                          <Zap className="w-3 h-3 text-orange" />
-                          Challenge
-                        </div>
-                        <p className="text-primary-dark/70 text-sm leading-relaxed line-clamp-2">
-                          {project.problem}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-primary-dark/60 text-xs font-medium uppercase tracking-wider">
-                          <TrendingUp className="w-3 h-3 text-orange" />
-                          Impact
-                        </div>
-                        <p className="text-primary-dark/80 text-sm font-medium leading-relaxed line-clamp-2">
-                          {project.outcome}
-                        </p>
-                        <p className="text-orange text-xs font-semibold mt-1">
-                          {project.metrics}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Tech Stack */}
-                    <div className="flex flex-wrap gap-1.5 pt-2">
-                      {project.technologies.slice(0, 4).map((tech) => (
-                        <span
-                          key={tech}
-                          className="px-2.5 py-1 bg-primary-dark/5 rounded-full text-xs text-primary-dark/70 font-medium"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* CTA Button */}
-                    <a
-                      href={project.link}
-                      className="inline-flex items-center gap-2 text-primary-dark font-semibold text-sm group/btn hover:text-orange transition-colors duration-300 mt-2"
-                    >
-                      View Case Study
-                      <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform duration-300" />
-                    </a>
-                  </div>
+        {/* Featured Project Spotlight */}
+        <div
+          className="max-w-5xl mx-auto"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+          <div
+            ref={cardRef}
+            key={active}
+            className="relative bg-white rounded-3xl shadow-xl shadow-primary-dark/10 p-6 md:p-10 border border-primary-dark/5 flex flex-col md:flex-row items-center gap-6 md:gap-10 min-h-[420px]"
+          >
+            {/* Project Image */}
+            <div className="w-full md:w-2/5 relative">
+              <div className="relative rounded-2xl overflow-hidden shadow-lg">
+                <div className="aspect-[16/10] overflow-hidden">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
+            </div>
+
+            {/* Project Content */}
+            <div className="w-full md:w-3/5 space-y-4">
+              <div>
+                <span className="text-orange font-medium text-xs uppercase tracking-wider">
+                  {project.positioning}
+                </span>
+                <h3 className="font-serif text-xl md:text-2xl lg:text-3xl text-primary-dark mt-2 mb-3">
+                  {project.title}
+                </h3>
+                <p className="text-primary-dark/70 text-sm md:text-base leading-relaxed line-clamp-2">
+                  {project.description}
+                </p>
+              </div>
+
+              {/* Problem & Solution */}
+              <div className="space-y-3 pt-3 border-t border-primary-dark/10">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-primary-dark/60 text-xs font-medium uppercase tracking-wider">
+                    <Zap className="w-3 h-3 text-orange" />
+                    Challenge
+                  </div>
+                  <p className="text-primary-dark/70 text-sm leading-relaxed line-clamp-2">
+                    {project.problem}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-primary-dark/60 text-xs font-medium uppercase tracking-wider">
+                    <TrendingUp className="w-3 h-3 text-orange" />
+                    Impact
+                  </div>
+                  <p className="text-primary-dark/80 text-sm font-medium leading-relaxed line-clamp-2">
+                    {project.outcome}
+                  </p>
+                  <p className="text-orange text-xs font-semibold mt-1">
+                    {project.metrics}
+                  </p>
+                </div>
+              </div>
+
+              {/* Tech Stack */}
+              <div className="flex flex-wrap gap-1.5 pt-2">
+                {project.technologies.slice(0, 4).map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-2.5 py-1 bg-primary-dark/5 rounded-full text-xs text-primary-dark/70 font-medium"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+
+              {/* CTA Button */}
+              <a
+                href={project.link}
+                className="inline-flex items-center gap-2 text-primary-dark font-semibold text-sm group/btn hover:text-orange transition-colors duration-300 mt-2"
+              >
+                View Case Study
+                <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform duration-300" />
+              </a>
+            </div>
+          </div>
+
+          {/* Project Navigation */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            {projects.map((p, i) => (
+              <button
+                key={p.title}
+                onClick={() => setActive(i)}
+                aria-label={`Show project ${p.title}`}
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 cursor-pointer ${
+                  i === active
+                    ? "bg-orange text-white shadow-lg shadow-orange/30 scale-105"
+                    : "bg-white text-primary-dark/60 hover:text-primary-dark border border-primary-dark/10"
+                }`}
+              >
+                {p.title}
+              </button>
             ))}
           </div>
         </div>
