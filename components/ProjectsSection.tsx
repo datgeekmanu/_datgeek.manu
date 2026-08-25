@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { ArrowRight, ExternalLink, TrendingUp, Zap } from "lucide-react";
+import { ArrowRight, Pause, Play } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,10 +20,11 @@ interface Project {
   description: string;
   problem: string;
   outcome: string;
-  metrics: string;
+  metrics: { label: string; value: string }[];
   technologies: string[];
   image: string;
   link: string;
+  tone: "orange" | "teal" | "gold";
 }
 
 const projects: Project[] = [
@@ -30,18 +37,16 @@ const projects: Project[] = [
       "Engineering teams struggled with fragmented monitoring tools and delayed scaling decisions across their AWS infrastructure.",
     outcome:
       "Reduced mean-time-to-detection by 87%, automated 95% of scaling decisions, and saved $2.4M annually in infrastructure costs.",
-    metrics: "10M+ daily metrics | 87% faster detection | $2.4M saved",
-    technologies: [
-      "Next.js",
-      "TypeScript",
-      "GraphQL",
-      "AWS",
-      "Redis",
-      "PostgreSQL",
+    metrics: [
+      { label: "Daily metrics", value: "10M+" },
+      { label: "Faster detection", value: "87%" },
+      { label: "Saved annually", value: "$2.4M" },
     ],
+    technologies: ["Next.js", "TypeScript", "GraphQL", "AWS", "Redis", "PostgreSQL"],
     image:
       "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&q=80",
     link: "/case-studies/cloudscale",
+    tone: "orange",
   },
   {
     title: "PayFlow Pro",
@@ -52,18 +57,16 @@ const projects: Project[] = [
       "E-commerce businesses experienced payment failures during peak traffic, losing millions in potential revenue each holiday season.",
     outcome:
       "Processed $50M+ in transactions with 99.99% uptime, achieved 0.03% chargeback rate, and increased conversion by 23%.",
-    metrics: "$50M+ processed | 99.99% uptime | 23% conversion boost",
-    technologies: [
-      "Node.js",
-      "Go",
-      "PostgreSQL",
-      "Redis",
-      "Stripe",
-      "Kubernetes",
+    metrics: [
+      { label: "Processed", value: "$50M+" },
+      { label: "Uptime", value: "99.99%" },
+      { label: "Conversion boost", value: "23%" },
     ],
+    technologies: ["Node.js", "Go", "PostgreSQL", "Redis", "Stripe", "Kubernetes"],
     image:
       "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80",
     link: "/case-studies/payflow",
+    tone: "teal",
   },
   {
     title: "DataSync AI",
@@ -74,230 +77,254 @@ const projects: Project[] = [
       "Marketing teams spent 40+ hours weekly manually consolidating data from fragmented sources, leading to delayed decision-making.",
     outcome:
       "Automated 98% of data workflows, reduced time-to-insight from days to minutes, and increased team productivity by 340%.",
-    metrics: "500+ sources | 98% automated | 340% productivity gain",
-    technologies: [
-      "Python",
-      "Airflow",
-      "Spark",
-      "BigQuery",
-      "Snowflake",
-      "MLflow",
+    metrics: [
+      { label: "Data sources", value: "500+" },
+      { label: "Automated", value: "98%" },
+      { label: "Productivity gain", value: "340%" },
     ],
+    technologies: ["Python", "Airflow", "Spark", "BigQuery", "Snowflake", "MLflow"],
     image:
       "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&q=80",
     link: "/case-studies/datasync",
+    tone: "gold",
   },
 ];
 
-// Longer than testimonials' 6s — project cards carry more text to read
-const ROTATION_MS = 8000;
+const toneBg: Record<Project["tone"], string> = {
+  orange: "bg-orange",
+  teal: "bg-teal",
+  gold: "bg-gold",
+};
+
+const AUTOPLAY_MS = 5000;
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  const [active, setActive] = useState(0);
+  const [playing, setPlaying] = useState(true);
+
+  // Center the active hero slide by measuring — handles peeks + responsive width.
+  const recenter = useCallback(() => {
+    const vp = viewportRef.current;
+    const track = trackRef.current;
+    const slide = slideRefs.current[active];
+    if (!vp || !track || !slide) return;
+    const offset =
+      vp.clientWidth / 2 - (slide.offsetLeft + slide.clientWidth / 2);
+    track.style.transform = `translate3d(${offset}px,0,0)`;
+  }, [active]);
+
+  useLayoutEffect(recenter, [recenter]);
   useEffect(() => {
-    if (paused) return;
+    window.addEventListener("resize", recenter);
+    return () => window.removeEventListener("resize", recenter);
+  }, [recenter]);
+
+  // Autoplay — paused on reduced-motion, hover, or explicit pause.
+  useEffect(() => {
+    if (!playing || prefersReducedMotion()) return;
     const id = setInterval(
       () => setActive((i) => (i + 1) % projects.length),
-      ROTATION_MS,
+      AUTOPLAY_MS,
     );
     return () => clearInterval(id);
-  }, [paused]);
+  }, [playing]);
 
   useGSAP(
     () => {
-      if (!titleRef.current) return;
-
-      gsap.fromTo(
-        titleRef.current,
-        { y: 60, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.from(titleRef.current, {
+          y: 60,
+          opacity: 0,
           duration: 1,
           ease: "power3.out",
-          scrollTrigger: {
-            trigger: titleRef.current,
-            start: "top 85%",
-          },
-        },
-      );
+          scrollTrigger: { trigger: titleRef.current, start: "top 85%" },
+        });
+        // Rail fade-in via autoAlpha so it always ends visible (clearProps),
+        // and never touches the hero track — that transform is driven by JS.
+        gsap.from("[data-rail]", {
+          autoAlpha: 0,
+          y: 24,
+          duration: 0.6,
+          ease: "power3.out",
+          stagger: 0.08,
+          clearProps: "opacity,visibility,transform",
+          scrollTrigger: { trigger: "[data-rail-row]", start: "top 95%" },
+        });
+      });
     },
     { scope: sectionRef },
   );
 
-  // Crossfade the featured project whenever the active index changes
-  useGSAP(
-    () => {
-      if (!cardRef.current) return;
-      gsap.fromTo(
-        cardRef.current,
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
-      );
-    },
-    { scope: sectionRef, dependencies: [active] },
-  );
-
-  const project = projects[active];
-
   return (
     <section
       ref={sectionRef}
-      className="relative bg-cream py-24 md:py-32 overflow-hidden"
+      className="relative w-full overflow-hidden bg-cream py-20 md:py-28"
     >
-      {/* Subtle background glow */}
-      <div className="absolute top-1/4 right-0 w-[600px] h-[600px] bg-orange/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 left-0 w-[500px] h-[500px] bg-teal/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="pointer-events-none absolute right-0 top-1/4 h-[600px] w-[600px] rounded-full bg-orange/5 blur-[120px]" />
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 relative z-10">
-        {/* Section Header */}
-        <div ref={titleRef} className="mb-16 md:mb-24">
-          <span className="inline-block text-orange font-medium text-sm tracking-widest uppercase mb-4">
-            Selected Work
-          </span>
-          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-primary-dark leading-tight mb-6">
-            Building Systems That <span className="text-orange">Scale</span>
-          </h2>
-          <p className="text-primary-dark/80 text-lg md:text-xl max-w-2xl leading-relaxed">
-            Every project focuses on measurable business outcomes—reduced costs,
-            faster time-to-market, and sustainable growth.
-          </p>
-        </div>
-
-        {/* Featured Project Spotlight */}
-        <div
-          className="max-w-5xl mx-auto"
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
+      <div className="mb-8 px-6 text-center md:mb-10">
+        <span className="mb-4 inline-block text-sm font-medium uppercase tracking-widest text-orange">
+          Selected Work
+        </span>
+        <h2
+          ref={titleRef}
+          className="font-serif text-4xl text-primary-dark md:text-6xl"
         >
-          <div
-            ref={cardRef}
-            key={active}
-            className="relative bg-white rounded-3xl shadow-xl shadow-primary-dark/10 p-6 md:p-10 border border-primary-dark/5 flex flex-col md:flex-row items-center gap-6 md:gap-10 min-h-[420px]"
-          >
-            {/* Project Image */}
-            <div className="w-full md:w-2/5 relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-lg">
-                <div className="aspect-[16/10] overflow-hidden">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            </div>
+          Building Systems That <span className="text-orange">Scale</span>
+        </h2>
+      </div>
 
-            {/* Project Content */}
-            <div className="w-full md:w-3/5 space-y-4">
-              <div>
-                <span className="text-orange font-medium text-xs uppercase tracking-wider">
-                  {project.positioning}
-                </span>
-                <h3 className="font-serif text-xl md:text-2xl lg:text-3xl text-primary-dark mt-2 mb-3">
-                  {project.title}
-                </h3>
-                <p className="text-primary-dark/70 text-sm md:text-base leading-relaxed line-clamp-2">
-                  {project.description}
-                </p>
-              </div>
-
-              {/* Problem & Solution */}
-              <div className="space-y-3 pt-3 border-t border-primary-dark/10">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-primary-dark/60 text-xs font-medium uppercase tracking-wider">
-                    <Zap className="w-3 h-3 text-orange" />
-                    Challenge
-                  </div>
-                  <p className="text-primary-dark/70 text-sm leading-relaxed line-clamp-2">
-                    {project.problem}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-primary-dark/60 text-xs font-medium uppercase tracking-wider">
-                    <TrendingUp className="w-3 h-3 text-orange" />
-                    Impact
-                  </div>
-                  <p className="text-primary-dark/80 text-sm font-medium leading-relaxed line-clamp-2">
-                    {project.outcome}
-                  </p>
-                  <p className="text-orange text-xs font-semibold mt-1">
-                    {project.metrics}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tech Stack */}
-              <div className="flex flex-wrap gap-1.5 pt-2">
-                {project.technologies.slice(0, 4).map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2.5 py-1 bg-primary-dark/5 rounded-full text-xs text-primary-dark/70 font-medium"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-
-              {/* CTA Button */}
-              <a
-                href={project.link}
-                className="inline-flex items-center gap-2 text-primary-dark font-semibold text-sm group/btn hover:text-orange transition-colors duration-300 mt-2"
+      {/* Tier 1 — hero carousel, full-bleed with peeks */}
+      <div
+        ref={viewportRef}
+        className="relative w-full overflow-hidden"
+        onMouseEnter={() => setPlaying(false)}
+        onMouseLeave={() => setPlaying(true)}
+      >
+        <div
+          ref={trackRef}
+          data-hero
+          className="flex items-stretch gap-2 transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none"
+        >
+          {projects.map((p, i) => {
+            const isActive = i === active;
+            return (
+              <div
+                key={p.title}
+                ref={(el) => {
+                  slideRefs.current[i] = el;
+                }}
+                className={`relative shrink-0 overflow-hidden transition-opacity duration-500 ease-out motion-reduce:transition-none ${
+                  isActive ? "opacity-100" : "opacity-55"
+                }`}
+                style={{ width: "min(72vw, 1180px)" }}
+                aria-hidden={!isActive}
               >
-                View Case Study
-                <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform duration-300" />
-              </a>
-            </div>
-          </div>
+                <a
+                  href={p.link}
+                  tabIndex={isActive ? 0 : -1}
+                  className="block w-full text-left"
+                >
+                  <div className="relative aspect-[21/9]">
+                    <img
+                      src={p.image}
+                      alt={p.title}
+                      className="h-full w-full object-cover"
+                      draggable={false}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/80 via-transparent to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6 md:p-10">
+                      <div className="max-w-xl">
+                        <span
+                          className={`mb-3 inline-block rounded-full ${toneBg[p.tone]} px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white`}
+                        >
+                          {p.title}
+                        </span>
+                        <p className="text-lg text-cream md:text-2xl">
+                          {p.positioning} — {p.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-          {/* Project Navigation */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            {projects.map((p, i) => (
+      {/* Tier 2 — full-width rail of every project */}
+      <div
+        data-rail-row
+        className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-3"
+      >
+        {projects.map((p, i) => (
+          <button
+            key={p.title}
+            data-rail
+            onClick={() => setActive(i)}
+            className={`group relative overflow-hidden text-left transition-opacity duration-300 ${
+              i === active ? "opacity-100" : "opacity-80 hover:opacity-100"
+            }`}
+          >
+            <div className="relative aspect-[16/11]">
+              <img
+                src={p.image}
+                alt=""
+                className="h-full w-full object-cover"
+                draggable={false}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/85 to-transparent" />
+              <span
+                className={`absolute right-2.5 top-2.5 rounded-full ${toneBg[p.tone]} px-2 py-0.5 text-[10px] font-semibold uppercase text-white`}
+              >
+                {p.metrics[0].value}
+              </span>
+              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3">
+                <span className="font-serif text-sm text-cream md:text-base">
+                  {p.title}
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-cream/95 px-2.5 py-1 text-[11px] font-semibold text-primary-dark opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                  View <ArrowRight className="h-3 w-3" />
+                </span>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Controls — dots centered, play/pause pinned far right (Apple-faithful) */}
+      <div className="relative mt-6 h-6 px-6">
+        <div className="absolute left-1/2 top-0 flex -translate-x-1/2 items-center gap-2">
+          {projects.map((p, i) => {
+            const isActive = i === active;
+            return (
               <button
                 key={p.title}
                 onClick={() => setActive(i)}
-                aria-label={`Show project ${p.title}`}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 cursor-pointer ${
-                  i === active
-                    ? "bg-orange text-white shadow-lg shadow-orange/30 scale-105"
-                    : "bg-white text-primary-dark/60 hover:text-primary-dark border border-primary-dark/10"
+                aria-label={`Go to ${p.title}`}
+                className={`relative h-2.5 overflow-hidden rounded-full transition-[width] duration-300 ease-out ${
+                  isActive ? "w-8" : "w-2.5"
                 }`}
+                style={{ background: "rgba(1,55,85,0.22)" }}
               >
-                {p.title}
+                {isActive && (
+                  <span
+                    // key restarts the fill each time the slide changes;
+                    // duration matches autoplay, freezes when paused.
+                    key={active}
+                    className="dot-fill absolute inset-0 rounded-full bg-dark-navy"
+                    style={{
+                      animationDuration: `${AUTOPLAY_MS}ms`,
+                      animationPlayState: playing ? "running" : "paused",
+                    }}
+                  />
+                )}
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
-
-        {/* Bottom CTA */}
-        <div className="mt-24 md:mt-32 text-center">
-          <div className="bg-white rounded-[2.5rem] p-8 md:p-16 shadow-xl shadow-primary-dark/5 relative overflow-hidden">
-            <div className="absolute top-0 right-0 -mr-32 -mt-32 w-64 h-64 bg-orange/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 -ml-32 -mb-32 w-64 h-64 bg-teal/10 rounded-full blur-3xl" />
-
-            <div className="relative z-10">
-              <h3 className="font-serif text-2xl md:text-4xl text-primary-dark mb-4">
-                Ready to build something exceptional?
-              </h3>
-              <p className="text-primary-dark/70 text-base md:text-lg mb-8 max-w-2xl mx-auto">
-                Let's discuss how I can help transform your ideas into scalable,
-                production-ready solutions that drive real business results.
-              </p>
-              <a
-                href="mailto:holonouemmanuel0@gmail.com"
-                className="inline-flex items-center gap-3 bg-orange text-white font-semibold px-8 py-4 rounded-full hover:bg-orange/90 transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-orange/30 group"
-              >
-                <span>Start a Project</span>
-                <ExternalLink className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </a>
-            </div>
-          </div>
-        </div>
+        <button
+          onClick={() => setPlaying((p) => !p)}
+          aria-label={playing ? "Pause" : "Play"}
+          className="absolute right-6 top-0 flex h-6 w-6 items-center justify-center text-primary-dark/50 transition-colors hover:text-primary-dark"
+        >
+          {playing ? (
+            <Pause className="h-4 w-4" fill="currentColor" strokeWidth={0} />
+          ) : (
+            <Play className="h-4 w-4" fill="currentColor" strokeWidth={0} />
+          )}
+        </button>
       </div>
     </section>
   );

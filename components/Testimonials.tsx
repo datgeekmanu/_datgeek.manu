@@ -51,6 +51,8 @@ export default function Testimonials() {
 
   useEffect(() => {
     if (paused) return;
+    // Don't auto-advance for users who opted out of motion (WCAG 2.2.2)
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = setInterval(
       () => setActive((i) => (i + 1) % testimonials.length),
       ROTATION_MS,
@@ -80,15 +82,25 @@ export default function Testimonials() {
     { scope: sectionRef },
   );
 
-  // Crossfade the featured quote whenever the active testimonial changes
+  // Fade the featured quote in whenever the active testimonial changes
   useGSAP(
     () => {
       if (!quoteRef.current) return;
-      gsap.fromTo(
-        quoteRef.current,
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
-      );
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          quoteRef.current,
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" },
+        );
+      });
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.fromTo(
+          quoteRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3, ease: "power1.out" },
+        );
+      });
     },
     { scope: sectionRef, dependencies: [active] },
   );
@@ -120,6 +132,8 @@ export default function Testimonials() {
           className="max-w-4xl mx-auto text-center"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
+          onFocusCapture={() => setPaused(true)}
+          onBlurCapture={() => setPaused(false)}
         >
           <div ref={quoteRef} key={active}>
             <Quote className="w-10 h-10 md:w-14 md:h-14 text-orange/30 mx-auto mb-8" />
@@ -143,7 +157,7 @@ export default function Testimonials() {
                 key={t.name}
                 onClick={() => setActive(i)}
                 aria-label={`Show testimonial from ${t.name}`}
-                className={`w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white font-serif text-base md:text-lg font-semibold shadow-lg shadow-orange/20 transition-all duration-300 cursor-pointer ${
+                className={`w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white font-serif text-base md:text-lg font-semibold shadow-lg shadow-orange/20 transition duration-300 cursor-pointer ${
                   i === active
                     ? "scale-110 ring-2 ring-orange ring-offset-4 ring-offset-cream"
                     : "opacity-40 hover:opacity-80 scale-90"

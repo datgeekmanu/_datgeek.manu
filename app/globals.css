@@ -67,6 +67,28 @@
   }
 }
 
+/* Projects carousel — active dot fills over the autoplay duration */
+@keyframes dotFill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.dot-fill {
+  transform-origin: left center;
+  animation: dotFill linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot-fill {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
 @keyframes float {
   0%,
   100% {

@@ -35,7 +35,7 @@ export default function Navbar() {
 
         <Link
           href="mailto:holonouemmanuel0@gmail.com"
-          className="rounded-full flex justify-center items-center bg-orange px-5 py-2.5 text-[16px] font-medium text-white hover:bg-orange/90 transition-colors"
+          className="rounded-full flex justify-center items-center bg-orange px-5 py-2.5 text-[16px] font-medium text-white hover:bg-orange/90 transition duration-150 active:scale-[0.97] motion-reduce:active:scale-100"
         >
           Work with me
         </Link>

@@ -5,6 +5,7 @@ import HeroSection from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
 import Expertise from "@/components/Expertise";
 import ProjectsSection from "@/components/ProjectsSection";
+import CtaShowcase from "@/components/CtaShowcase";
 import WhyWorkWithMe from "@/components/WhyWorkWithMe";
 import Testimonials from "@/components/Testimonials";
 import AboutMe from "@/components/AboutMe";
@@ -14,13 +15,14 @@ export default function Home() {
     <div className="min-h-screen">
       <Navbar />
       <HeroSection />
+      <WhyWorkWithMe />
       <Expertise />
       <ProjectsSection />
       <AboutMe />
-      <WhyWorkWithMe />
       <Testimonials />
       <HowItWorks />
-      <CTA />
+      <CtaShowcase />
+      {/* <CTA /> */}
       <Footer />
     </div>
   );

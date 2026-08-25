@@ -4,140 +4,110 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import Feature from "./ui/feature";
-import Link from "next/link";
-import { ArrowRight, CalendarDays } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const features = [
   {
-    title: "Full-Stack Product Engineering",
+    no: "01",
+    title: "Product Engineering",
     description:
-      "Architecting and building end-to-end software solutions. From concept to production-ready deployment.",
-    tagline: "Build the full product",
-    subtitle: "Build the full product",
+      "Web applications, SaaS platforms, APIs and internal tools built around your actual business requirements.",
+    tagline: "Your idea into a working product.",
+    stack: "React • Node • Postgres",
   },
   {
-    title: "Scalable System Architecture",
+    no: "02",
+    title: "Backend & System Architecture",
     description:
-      "Designing backend APIs and infrastructure that are robust, efficient, and growth-oriented.",
-    tagline: "Design for scale",
-    subtitle: "Design for scale",
+      "Design APIs, databases, authentication, queues, integrations and distributed services that won't collapse when usage grows.",
+    tagline: "The foundation your product can grow on.",
+    stack: "APIs • Queues • Observability",
   },
   {
-    title: "Maintainable Modern Codebase",
+    no: "03",
+    title: "AI & Intelligent Systems",
     description:
-      "Writing clean, maintainable code using contemporary frameworks, tooling, and best practices.",
-    tagline: "Deliver on best practices",
-    subtitle: "Clean code • CI/CD • Cloud",
+      "RAG systems, document processing, AI agents and intelligent automation integrated into existing products.",
+    tagline: "Add AI where it creates real business value.",
+    stack: "OpenAI • Langchain • Python • AI Agents",
   },
 ];
 
 export default function Expertise() {
   const sectionRef = useRef<HTMLElement>(null);
-  const featuresGridRef = useRef<HTMLDivElement>(null);
-  // const ctaRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
-      if (!featuresGridRef.current || !sectionRef.current) return;
-
-      const featureItems =
-        featuresGridRef.current.querySelectorAll("[data-feature]");
-
-      // Create a timeline for staggered animation
-      const tl = gsap.timeline({
+      const rows = gsap.utils.toArray<HTMLElement>("[data-row]");
+      const reduce = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      if (reduce) {
+        gsap.set(rows, { opacity: 1, y: 0 });
+        return;
+      }
+      gsap.from(rows, {
+        y: 24,
+        opacity: 0,
+        duration: 0.45,
+        ease: "power3.out",
+        stagger: 0.12,
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top top",
-          end: "+=200%",
-          scrub: 1,
-          pin: true,
-          pinSpacing: true,
-          markers: false,
+          start: "top 70%",
         },
-      });
-
-      // Animate each feature card from below viewport
-      featureItems.forEach((item, index) => {
-        tl.fromTo(
-          item,
-          {
-            yPercent: 200,
-            //   opacity: 0
-          },
-          {
-            yPercent: 0,
-            opacity: 1,
-            duration: 0.5,
-            ease: "power2.out",
-          },
-          "-=0.4", // stagger start time
-        );
       });
     },
     { scope: sectionRef },
   );
 
   return (
-    <section
-      ref={sectionRef}
-      className="bg-cream px-6 md:px-20 py-20 flex flex-col overflow-hidden"
-    >
-      <div className="max-w-7xl mx-auto w-full">
-        <div className=" mb-12">
+    <section ref={sectionRef} className="bg-cream px-6 md:px-20 py-24">
+      <div className="max-w-6xl mx-auto w-full">
+        <div className="mb-16 max-w-3xl">
           <p className="text-orange font-medium mb-4">Expertise</p>
-          <h2 className="text-3xl md:text-4xl font-serif text-primary-dark">
+          <h2 className="text-4xl md:text-6xl leading-[1.05] font-serif text-primary-dark">
             I help companies build{" "}
             <span className="text-orange font-semibold">
-              reliable & scalable
+              reliable &amp; scalable
             </span>{" "}
             software systems.
           </h2>
         </div>
-        <div
-          ref={featuresGridRef}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-        >
-          {features.map((feature, index) => (
-            <div key={index} data-feature>
-              <Feature
-                title={feature.title}
-                description={feature.description}
-                tagline={feature.tagline}
-                subtitle={feature.subtitle}
-              />
-            </div>
+
+        <div className="border-t border-primary-dark/15">
+          {features.map((f) => (
+            <article
+              key={f.no}
+              data-row
+              className="group grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 py-12 border-b border-primary-dark/15"
+            >
+              <div className="md:col-span-1">
+                <span className="text-2xl font-serif text-orange/60 group-hover:text-orange transition-colors duration-200">
+                  {f.no}
+                </span>
+              </div>
+              <div className="md:col-span-5">
+                <h3 className="text-3xl md:text-4xl font-serif font-bold text-primary-dark leading-tight">
+                  {f.title}
+                </h3>
+                <p className="mt-4 text-xl text-orange font-serif">
+                  {f.tagline}
+                </p>
+              </div>
+              <div className="md:col-span-6 flex flex-col justify-between">
+                <p className="text-primary-dark/90 text-lg md:text-xl leading-relaxed">
+                  {f.description}
+                </p>
+                <p className="mt-6 text-sm tracking-wide uppercase text-primary-dark/60">
+                  {f.stack}
+                </p>
+              </div>
+            </article>
           ))}
         </div>
       </div>
-
-      {/* <div className="py-10 max-w-7xl mx-auto w-full" ref={ctaRef}>
-        <div className="bg-white shadow-sm rounded-[2rem] p-8 md:p-16 text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-brand-accent/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-brand-accent/5 rounded-full blur-3xl"></div>
-          <div className="relative z-10 max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-black text-primary-dark font-serif mb-6 tracking-tight">
-              Ready to bring your project{" "}
-              <span className="text-orange">to life?</span>
-            </h2>
-            <p className="text-lg md:text-xl text-primary-dark font-semibold mb-10 leading-relaxed">
-              Let's discuss your requirements and build something great
-              together. Book a free consultation today.
-            </p>
-            <Link
-              className="inline-flex items-center px-8 py-4 bg-orange text-white font-bold rounded-xl shadow-[0_10px_25px_rgba(232,100,26,0.3)] hover:bg-brand-accent/90 transition-all duration-300 transform hover:-translate-y-1 group"
-              href="#"
-            >
-              <CalendarDays className="mr-2" />
-              Book a Free Consultation
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-        </div>
-      </div> */}
-
     </section>
   );
 }
