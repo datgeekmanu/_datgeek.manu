@@ -12,25 +12,25 @@ const features = [
     no: "01",
     title: "Product Engineering",
     description:
-      "Web applications, SaaS platforms, APIs and internal tools built around your actual business requirements.",
+      "SaaS platforms, web applications, dashboards, internal tools and APIs — built around your actual business requirements, not a prototype you'll rewrite later.",
     tagline: "Your idea into a working product.",
-    stack: "React • Node • Postgres",
+    stack: "Next.js • React • TypeScript • Tailwind",
   },
   {
     no: "02",
     title: "Backend & System Architecture",
     description:
-      "Design APIs, databases, authentication, queues, integrations and distributed services that won't collapse when usage grows.",
+      "APIs, databases, authentication, multi-tenancy, queues, background jobs and distributed services that hold up as usage grows.",
     tagline: "The foundation your product can grow on.",
-    stack: "APIs • Queues • Observability",
+    stack: "Python • FastAPI • Laravel • PostgreSQL • Redis",
   },
   {
     no: "03",
     title: "AI & Intelligent Systems",
     description:
-      "RAG systems, document processing, AI agents and intelligent automation integrated into existing products.",
+      "RAG systems, document processing, AI agents and voice AI — integrated into real products, from the data layer to the interface.",
     tagline: "Add AI where it creates real business value.",
-    stack: "OpenAI • Langchain • Python • AI Agents",
+    stack: "LangChain • Qdrant • Embeddings • LiveKit",
   },
 ];
 
@@ -63,7 +63,7 @@ export default function Expertise() {
   );
 
   return (
-    <section ref={sectionRef} className="bg-cream px-6 md:px-20 py-24">
+    <section id="services" ref={sectionRef} className="bg-cream px-6 md:px-20 py-24">
       <div className="max-w-6xl mx-auto w-full">
         <div className="mb-16 max-w-3xl">
           <p className="text-orange font-medium mb-4">Expertise</p>
@@ -74,6 +74,10 @@ export default function Expertise() {
             </span>{" "}
             software systems.
           </h2>
+          <p className="mt-6 text-lg md:text-xl text-primary-dark/70 leading-relaxed">
+            Custom business software, internal tools and third-party
+            integrations too — AI is optional, reliable engineering isn't.
+          </p>
         </div>
 
         <div className="border-t border-primary-dark/15">

@@ -14,6 +14,7 @@ import {
   ArrowRight,
   type LucideIcon,
 } from "lucide-react";
+import { BOOKING_URL } from "@/lib/contact";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -32,13 +33,13 @@ const values: Value[] = [
   {
     Icon: Zap,
     no: "01",
-    lead: "Ship Without",
-    accent: "the Technical ",
-    trail: "Debt.",
+    lead: "Build It",
+    accent: "Once, Properly",
+    trail: ".",
     tone: "orange",
     description:
-      "Build quickly without creating a system you'll have to rewrite six months later.",
-    detail: "Load-tested to 10k requests/sec before you ever hit it.",
+      "Ship the actual product, not a prototype you have to rewrite six months later. Tested, documented, and ready for real users.",
+    detail: "Production software from day one — not a demo that breaks under load.",
   },
   {
     Icon: Target,
@@ -48,8 +49,8 @@ const values: Value[] = [
     trail: ".",
     tone: "teal",
     description:
-      "I solve problems that matter. Every technical decision ties back to your business goals and bottom line.",
-    detail: "Every sprint maps to a metric on your dashboard.",
+      "Every technical decision ties back to what you're actually trying to do. A foundation that's maintainable today and ready to grow.",
+    detail: "Systems designed around your requirements, not a generic template.",
   },
   {
     Icon: Layers,
@@ -59,8 +60,8 @@ const values: Value[] = [
     trail: ".",
     tone: "orange",
     description:
-      "Integrate RAG, LLMs and intelligent workflows when they create measurable value.",
-    detail: "Automations that quietly remove hours of manual work each week.",
+      "RAG, LLMs and intelligent workflows built into a real product — not bolted on. I've shipped these end to end, not just called an API.",
+    detail: "AI that fits inside production software, from data to interface.",
   },
 ];
 
@@ -75,7 +76,6 @@ const toneBg: Record<Value["tone"], string> = {
   gold: "bg-gold/10 text-gold",
 };
 
-const MAIL = "mailto:holonouemmanuel0@gmail.com?subject=Let's%20talk";
 const reduce = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -183,11 +183,6 @@ function Sheet({
           <X className="w-4 h-4" />
         </button>
 
-        <div
-          className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 ${toneBg[value.tone]}`}
-        >
-          <value.Icon className="w-6 h-6" />
-        </div>
         <h2
           id="why-modal-title"
           className="font-serif text-3xl md:text-4xl text-primary-dark mb-6"
@@ -206,7 +201,7 @@ function Sheet({
         </p>
 
         <a
-          href={MAIL}
+          href={BOOKING_URL}
           className="inline-flex items-center gap-2 font-semibold text-orange group"
         >
           Start a conversation

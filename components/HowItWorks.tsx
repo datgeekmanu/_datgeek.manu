@@ -118,7 +118,8 @@ export default function HowItWorks() {
             From Idea to Launch
           </h2>
           <p className="mt-2 max-w-xl text-lg leading-relaxed tracking-tight text-primary-dark/70">
-            A clear, structured approach to building scalable digital products.
+            A clear, structured path from business problem to working software in
+            production — so you always know what's being built and why.
           </p>
         </div>
 

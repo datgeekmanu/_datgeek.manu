@@ -6,16 +6,17 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
+import { BOOKING_URL } from "@/lib/contact";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const body =
-  "Let's discuss your requirements and build something great together. Book a free consultation today.";
+  "Tell me what you're building. I'll help you figure out the technical path forward — architecture, stack, and how to ship it.";
 
 const work = [
-  { title: "Fintech dashboard", tint: "from-orange to-[#c9500f]" },
-  { title: "AI ops platform", tint: "from-teal to-[#155e54]" },
-  { title: "Logistics API", tint: "from-gold to-[#c17d0a]" },
+  { title: "BoostMyDeal", tint: "from-orange to-[#c9500f]" },
+  { title: "Voice AI Platform", tint: "from-teal to-[#155e54]" },
+  { title: "Document Processor", tint: "from-gold to-[#c17d0a]" },
 ];
 
 export default function CtaShowcase() {
@@ -83,7 +84,7 @@ export default function CtaShowcase() {
                     group-hover:[transform:translateX(calc(var(--x)*1.7))_rotate(calc(var(--r)*1.6))]
                     transition-transform duration-300 ease-out motion-reduce:transition-none`}
                 >
-                  <span className="text-xs uppercase tracking-wide opacity-80">Case study</span>
+                  <span className="text-xs uppercase tracking-wide opacity-80">Project</span>
                   <span className="font-serif text-xl leading-tight">{w.title}</span>
                 </div>
               ))}
@@ -97,13 +98,18 @@ export default function CtaShowcase() {
             </p>
             <Link
               data-anim
-              href="mailto:holonouemmanuel0@gmail.com?subject=Free%20consultation"
+              href={BOOKING_URL}
               className="inline-flex items-center px-7 py-3.5 bg-primary-dark text-white font-semibold rounded-full shadow-[0_1px_2px_rgba(1,55,85,0.15)] hover:shadow-[0_4px_12px_rgba(1,55,85,0.22)] active:scale-[0.97] motion-reduce:active:scale-100 transition-shadow duration-200 group/btn"
             >
               <CalendarDays className="mr-2 w-[18px] h-[18px]" />
-              Book a Free Consultation
+              Discuss Your Project
               <ArrowRight className="ml-2 w-[18px] h-[18px] group-hover/btn:translate-x-1 transition-transform" />
             </Link>
+            <p data-anim className="mt-5 text-sm text-primary-dark/70 leading-relaxed">
+              We can start small — a paid scoping engagement that gives you a
+              clear architecture and estimate before any bigger commitment. You
+              work directly with me, not an account manager.
+            </p>
           </div>
         </div>
       </div>

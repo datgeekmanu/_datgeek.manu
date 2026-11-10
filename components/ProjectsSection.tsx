@@ -11,6 +11,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { ArrowRight, Pause, Play } from "lucide-react";
+import { BOOKING_URL } from "@/lib/contact";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -29,63 +30,86 @@ interface Project {
 
 const projects: Project[] = [
   {
-    title: "CloudScale Platform",
-    positioning: "Enterprise Infrastructure Dashboard",
+    title: "BoostMyDeal",
+    positioning: "AI-powered deal discovery SaaS",
     description:
-      "A comprehensive cloud infrastructure monitoring and scaling platform that handles 10M+ metrics daily.",
+      "An end-to-end AI product for discovering and surfacing deals — built from the backend up.",
     problem:
-      "Engineering teams struggled with fragmented monitoring tools and delayed scaling decisions across their AWS infrastructure.",
+      "Turning an AI product idea into a real, billable SaaS means owning the backend, the RAG layer, the voice pipeline, the dashboard and the infrastructure — not just wiring up an API.",
     outcome:
-      "Reduced mean-time-to-detection by 87%, automated 95% of scaling decisions, and saved $2.4M annually in infrastructure costs.",
+      "I built the backend, the RAG system, the LiveKit voice API and agent, and the frontend dashboard — working across the architecture and infrastructure. Currently in beta.",
     metrics: [
-      { label: "Daily metrics", value: "10M+" },
-      { label: "Faster detection", value: "87%" },
-      { label: "Saved annually", value: "$2.4M" },
+      { label: "Scope", value: "End-to-end" },
+      { label: "Type", value: "AI SaaS" },
+      { label: "Status", value: "Beta" },
     ],
-    technologies: ["Next.js", "TypeScript", "GraphQL", "AWS", "Redis", "PostgreSQL"],
+    technologies: [
+      "Next.js",
+      "Laravel",
+      "FastAPI",
+      "LangChain",
+      "Qdrant",
+      "Stripe",
+      "Docker",
+    ],
     image:
-      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&q=80",
-    link: "/case-studies/cloudscale",
+      "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&q=80",
+    link: BOOKING_URL,
     tone: "orange",
   },
   {
-    title: "PayFlow Pro",
-    positioning: "Real-time Payment Gateway",
+    title: "Voice AI Platform",
+    positioning: "Multi-tenant voice AI assistant SaaS",
     description:
-      "A high-performance payment processing system with sub-millisecond latency and 99.99% uptime SLA.",
+      "A B2B platform where businesses run their own AI voice assistant, backed by a private knowledge base.",
     problem:
-      "E-commerce businesses experienced payment failures during peak traffic, losing millions in potential revenue each holiday season.",
+      "Real-time voice AI on top of a multi-tenant SaaS touches everything at once — transport, the agent pipeline, a RAG knowledge base, billing and tenant isolation.",
     outcome:
-      "Processed $50M+ in transactions with 99.99% uptime, achieved 0.03% chargeback rate, and increased conversion by 23%.",
+      "Built across a Laravel API and Next.js dashboard with LiveKit voice transport, an AI agent pipeline, a Qdrant-backed RAG knowledge base, Stripe billing, multi-tenancy and background workers.",
     metrics: [
-      { label: "Processed", value: "$50M+" },
-      { label: "Uptime", value: "99.99%" },
-      { label: "Conversion boost", value: "23%" },
+      { label: "Architecture", value: "Multi-tenant" },
+      { label: "Domain", value: "Voice AI" },
+      { label: "Billing", value: "Stripe" },
     ],
-    technologies: ["Node.js", "Go", "PostgreSQL", "Redis", "Stripe", "Kubernetes"],
+    technologies: [
+      "Laravel",
+      "Next.js",
+      "LiveKit",
+      "PostgreSQL",
+      "Redis",
+      "Qdrant",
+      "Stripe",
+    ],
     image:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80",
-    link: "/case-studies/payflow",
+      "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=1200&q=80",
+    link: BOOKING_URL,
     tone: "teal",
   },
   {
-    title: "DataSync AI",
-    positioning: "Enterprise Data Pipeline",
+    title: "Intelligent Document Processor",
+    positioning: "Document-processing backend (in progress)",
     description:
-      "An intelligent data orchestration platform that syncs 500+ data sources with real-time transformation and ML-powered insights.",
+      "A production-grade backend for turning passports, invoices and PDFs into structured data through an API.",
     problem:
-      "Marketing teams spent 40+ hours weekly manually consolidating data from fragmented sources, leading to delayed decision-making.",
+      "Extracting structured data from documents reliably means an event-driven pipeline: object storage, queues, classification, validation, extraction and async result retrieval — not a single script.",
     outcome:
-      "Automated 98% of data workflows, reduced time-to-insight from days to minutes, and increased team productivity by 340%.",
+      "An engineering platform built on FastAPI microservices, Kafka, Cloudflare R2 and Qdrant, with background workers and asynchronous jobs. Document → storage → queue → processing → structured result.",
     metrics: [
-      { label: "Data sources", value: "500+" },
-      { label: "Automated", value: "98%" },
-      { label: "Productivity gain", value: "340%" },
+      { label: "Design", value: "Event-driven" },
+      { label: "Processing", value: "Async" },
+      { label: "Domain", value: "Document AI" },
     ],
-    technologies: ["Python", "Airflow", "Spark", "BigQuery", "Snowflake", "MLflow"],
+    technologies: [
+      "FastAPI",
+      "Kafka",
+      "Qdrant",
+      "Cloudflare R2",
+      "Docker",
+      "Python",
+    ],
     image:
-      "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&q=80",
-    link: "/case-studies/datasync",
+      "https://images.unsplash.com/photo-1568667256549-094345857637?w=1200&q=80",
+    link: BOOKING_URL,
     tone: "gold",
   },
 ];
@@ -167,6 +191,7 @@ export default function ProjectsSection() {
 
   return (
     <section
+      id="projects"
       ref={sectionRef}
       className="relative w-full overflow-hidden bg-cream py-20 md:py-28"
     >
@@ -180,7 +205,7 @@ export default function ProjectsSection() {
           ref={titleRef}
           className="font-serif text-4xl text-primary-dark md:text-6xl"
         >
-          Building Systems That <span className="text-orange">Scale</span>
+          Real products, <span className="text-orange">built end to end</span>
         </h2>
       </div>
 

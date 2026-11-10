@@ -1,17 +1,18 @@
 import Link from "next/link";
+import { BOOKING_URL } from "@/lib/contact";
 
 const navLinks = [
   { label: "Home", href: "#" },
-  { label: "Services", href: "#" },
-  { label: "Projects", href: "#" },
-  { label: "Process", href: "#" },
-  { label: "About", href: "#" },
-  { label: "Contact", href: "#" },
+  { label: "Services", href: "#services" },
+  { label: "Projects", href: "#projects" },
+  { label: "Process", href: "#how-it-works" },
+  { label: "About", href: "#about" },
+  { label: "Contact", href: BOOKING_URL },
 ];
 
 export default function Navbar() {
   return (
-    <nav className="bg-cream">
+    <nav className="bg-cream/90 backdrop-blur-sm sticky top-0 z-50">
       <div className="mx-auto flex items-center justify-between p-10 h-[52px]">
         <Link
           href="/"
@@ -34,7 +35,7 @@ export default function Navbar() {
         </div>
 
         <Link
-          href="mailto:holonouemmanuel0@gmail.com"
+          href={BOOKING_URL}
           className="rounded-full flex justify-center items-center bg-orange px-5 py-2.5 text-[16px] font-medium text-white hover:bg-orange/90 transition duration-150 active:scale-[0.97] motion-reduce:active:scale-100"
         >
           Work with me
