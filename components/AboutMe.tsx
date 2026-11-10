@@ -4,30 +4,27 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { Code, Zap, Target, Award, Briefcase, TrendingUp } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const stats = [
+const roles = [
   {
-    value: "8+",
-    label: "Years Experience",
-    icon: <Briefcase className="w-5 h-5" />,
+    org: "VoxSun Telecom",
+    role: "Software Developer",
+    when: "Dec 2023 – present",
+    line: "Backend and telecom integrations, running in production.",
   },
   {
-    value: "50+",
-    label: "Projects Delivered",
-    icon: <Award className="w-5 h-5" />,
+    org: "Speedwapp",
+    role: "Software Developer",
+    when: "Oct 2022 – Sep 2024",
+    line: "Shipped features for a live product used by real users.",
   },
   {
-    value: "$10M+",
-    label: "Revenue Impact",
-    icon: <TrendingUp className="w-5 h-5" />,
-  },
-  {
-    value: "99.9%",
-    label: "Client Satisfaction",
-    icon: <Zap className="w-5 h-5" />,
+    org: "Freelance",
+    role: "Software Engineer",
+    when: "2020 – present",
+    line: "Turning ideas into working products for startups and businesses.",
   },
 ];
 
@@ -63,24 +60,21 @@ const icons = [
   { Icon: SiLaravel, label: "Laravel" },
 ];
 
-const principles = [
+const beats = [
   {
-    icon: <Code className="w-6 h-6" />,
-    title: "Ship Quality Code",
-    description:
-      "I don't cut corners. Every line I write is production-ready, tested, and documented.",
+    when: "2020",
+    title: "Started building for clients",
+    body: "Freelance software development — turning ideas into working products, and learning that shipping fast only counts if it survives contact with real users.",
   },
   {
-    icon: <Target className="w-6 h-6" />,
-    title: "Think in Outcomes",
-    description:
-      "Technology is a means, not an end. I focus on what matters—business results.",
+    when: "2022 →",
+    title: "Into production teams",
+    body: "Software developer roles at Speedwapp and VoxSun Telecom — real systems, real users, real constraints. Backend, integrations and telecom.",
   },
   {
-    icon: <Zap className="w-6 h-6" />,
-    title: "Move with Purpose",
-    description:
-      "Fast execution without chaos. Clear priorities, realistic timelines, and steady progress.",
+    when: "Now",
+    title: "A partner, not a contractor",
+    body: "Backend engineering, SaaS architecture and AI systems, end to end — measured in business outcomes. Currently building BoostMyDeal.",
   },
 ];
 
@@ -89,7 +83,6 @@ export default function AboutMe() {
   const bioRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const techRef = useRef<HTMLDivElement>(null);
-  const principlesRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -97,6 +90,7 @@ export default function AboutMe() {
 
       // Bio animation
       if (bioRef.current) {
+        const st = { trigger: bioRef.current, start: "top 80%" };
         const bioContent =
           bioRef.current.querySelectorAll("[data-bio-animate]");
         gsap.fromTo(
@@ -108,10 +102,22 @@ export default function AboutMe() {
             duration: 0.8,
             stagger: 0.1,
             ease: "power3.out",
-            scrollTrigger: {
-              trigger: bioRef.current,
-              start: "top 80%",
-            },
+            scrollTrigger: st,
+          },
+        );
+
+        // Timeline beats slide in from the spine
+        const beatItems = bioRef.current.querySelectorAll("[data-beat]");
+        gsap.fromTo(
+          beatItems,
+          { x: 24, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.12,
+            ease: "power3.out",
+            scrollTrigger: st,
           },
         );
       }
@@ -135,34 +141,13 @@ export default function AboutMe() {
           },
         );
       }
-
-      // Principles animation
-      if (principlesRef.current) {
-        const principleCards = principlesRef.current.querySelectorAll(
-          "[data-principle-card]",
-        );
-        gsap.fromTo(
-          principleCards,
-          { y: 60, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            stagger: 0.15,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: principlesRef.current,
-              start: "top 80%",
-            },
-          },
-        );
-      }
     },
     { scope: sectionRef },
   );
 
   return (
     <section
+      id="about"
       ref={sectionRef}
       className="bg-cream py-20 md:py-28 relative overflow-hidden"
     >
@@ -174,62 +159,86 @@ export default function AboutMe() {
         {/* Bio Section */}
         <div
           ref={bioRef}
-          className="grid md:grid-cols-2 gap-12 md:gap-16 mb-20 md:mb-28"
+          className="grid md:grid-cols-12 gap-12 md:gap-16 mb-20 md:mb-28"
         >
-          <div className="space-y-6" data-bio-animate>
-            <span className="text-orange font-medium text-sm tracking-widest uppercase">
+          {/* Intro */}
+          <div className="md:col-span-5">
+            <span
+              data-bio-animate
+              className="text-orange font-medium text-sm tracking-widest uppercase inline-block mb-5"
+            >
               About Me
             </span>
-            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-primary-dark leading-tight">
+            <h2
+              data-bio-animate
+              className="font-serif text-3xl md:text-4xl lg:text-5xl text-primary-dark leading-tight mb-6"
+            >
               Building Systems That{" "}
               <span className="text-orange">Stand the Test of Time</span>
             </h2>
+            <p
+              data-bio-animate
+              className="text-primary-dark/80 text-lg leading-relaxed"
+            >
+              I'm Emmanuel — a software engineer who thinks like a founder.
+              Since 2020 I've helped startups and businesses turn ideas into
+              production software, with a focus on backend, SaaS architecture
+              and AI systems.
+            </p>
           </div>
-          <div
-            className="space-y-4 text-primary-dark/80 text-lg leading-relaxed"
-            data-bio-animate
-          >
-            <p>
-              I'm Emmanuel—a software engineer who thinks like a founder. Over
-              the past 8 years, I've helped startups and businesses transform
-              ideas into scalable, production-ready software.
-            </p>
-            <p>
-              My expertise lies in backend architecture, data infrastructure,
-              and integrating AI into real-world workflows. But more
-              importantly, I understand that great engineering is about solving
-              business problems, not writing clever code.
-            </p>
-            <p>
-              When I join a project, I become a partner in your success. I bring
-              clarity to complexity, deliver on commitments, and build systems
-              that scale gracefully with your growth.
-            </p>
+
+          {/* Timeline of beats */}
+          <div className="md:col-span-7">
+            <ol className="relative border-l border-primary-dark/15 ml-3">
+              {beats.map((b) => (
+                <li
+                  key={b.when}
+                  data-beat
+                  className="relative pl-8 pb-10 last:pb-0"
+                >
+                  <span className="absolute -left-[7px] top-1.5 w-3.5 h-3.5 rounded-full bg-orange ring-4 ring-cream" />
+                  <span className="font-serif text-orange text-lg">
+                    {b.when}
+                  </span>
+                  <h3 className="font-serif text-xl md:text-2xl text-primary-dark mt-1 mb-2">
+                    {b.title}
+                  </h3>
+                  <p className="text-primary-dark/75 text-base md:text-lg leading-relaxed">
+                    {b.body}
+                  </p>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div
-          ref={statsRef}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-20 md:mb-28"
-        >
-          {stats.map((stat, index) => (
-            <div
-              key={index}
-              data-stat-card
-              className="bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 text-center shadow-lg shadow-primary-dark/5 hover:shadow-xl hover:shadow-primary-dark/10 transition-all duration-300 hover:-translate-y-1 group"
-            >
-              <div className="w-12 h-12 mx-auto mb-4 bg-orange/10 rounded-xl flex items-center justify-center text-orange group-hover:bg-orange/20 transition-colors">
-                {stat.icon}
+        {/* Proven in Production */}
+        <div ref={statsRef} className="mb-20 md:mb-28">
+          <div data-stat-card className="mb-8 max-w-2xl">
+            <span className="text-orange font-medium text-sm tracking-widest uppercase mb-3 inline-block">
+              Proven in Production
+            </span>
+            <h3 className="font-serif text-2xl md:text-3xl lg:text-4xl text-primary-dark leading-tight">
+              Real roles, real software,{" "}
+              <span className="text-orange">shipped to real users</span>
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            {roles.map((r) => (
+              <div
+                key={r.org}
+                data-stat-card
+                className="bg-white rounded-2xl p-7 shadow-[0_1px_3px_rgba(1,55,85,0.08),0_1px_2px_rgba(1,55,85,0.06)] transition-shadow duration-300 ease-out hover:shadow-[0_6px_16px_-4px_rgba(1,55,85,0.14)]"
+              >
+                <p className="text-sm font-medium text-orange">{r.when}</p>
+                <h4 className="font-serif text-xl md:text-2xl text-primary-dark mt-1">
+                  {r.org}
+                </h4>
+                <p className="text-primary-dark/60 text-sm mb-3">{r.role}</p>
+                <p className="text-primary-dark/75 leading-relaxed">{r.line}</p>
               </div>
-              <div className="font-serif text-3xl md:text-4xl text-primary-dark mb-2 group-hover:text-orange transition-colors">
-                {stat.value}
-              </div>
-              <div className="text-primary-dark/60 text-sm md:text-base font-medium">
-                {stat.label}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Technologies */}
@@ -324,46 +333,6 @@ export default function AboutMe() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* Working Philosophy */}
-        <div ref={principlesRef}>
-          <div className="text-center mb-12" data-principle-card>
-            <span className="text-orange font-medium text-sm tracking-widest uppercase mb-4 inline-block">
-              How I Work
-            </span>
-            <h2 className="font-serif text-3xl md:text-4xl text-primary-dark">
-              Principles That Guide{" "}
-              <span className="text-orange">Every Project</span>
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {principles.map((principle, index) => (
-              <div
-                key={index}
-                data-principle-card
-                className="group relative bg-gradient-to-br from-white to-white/50 backdrop-blur-sm rounded-2xl md:rounded-3xl p-8 md:p-10 shadow-lg shadow-primary-dark/5 hover:shadow-xl hover:shadow-primary-dark/10 transition-all duration-500 hover:-translate-y-2 overflow-hidden"
-              >
-                {/* Subtle glow on hover */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-orange/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                <div className="relative z-10">
-                  <div className="w-14 h-14 bg-orange/10 rounded-xl flex items-center justify-center text-orange mb-6 group-hover:bg-orange/20 transition-colors">
-                    {principle.icon}
-                  </div>
-                  <h3 className="font-serif text-xl md:text-2xl text-primary-dark mb-4 group-hover:text-orange transition-colors">
-                    {principle.title}
-                  </h3>
-                  <p className="text-primary-dark/70 text-base md:text-lg leading-relaxed">
-                    {principle.description}
-                  </p>
-                </div>
-
-                {/* Decorative accent line */}
-                <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-orange to-transparent group-hover:w-full transition-all duration-700" />
-              </div>
-            ))}
           </div>
         </div>
       </div>
